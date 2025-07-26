@@ -1,71 +1,93 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📶 QTX Real Signal Box</title>
+  <title>QTX Signal 🔮</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       margin: 0;
-      background-color: #101010;
-      font-family: Arial, sans-serif;
-    }.signal-box {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 15px 20px;
-  border-radius: 12px;
-  color: lime;
-  font-size: 20px;
-  font-weight: bold;
-  box-shadow: 0 0 10px lime;
-  z-index: 9999;
-  animation: blink 1s infinite alternate;
-}
+      background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
+      font-family: 'Segoe UI', sans-serif;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
 
-@keyframes blink {
-  from { opacity: 1; }
-  to { opacity: 0.7; }
-}
+    .signal-card {
+      background: #111;
+      padding: 25px 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0, 255, 0, 0.2);
+      text-align: center;
+      transition: 0.4s ease;
+      border: 2px solid rgba(0, 255, 0, 0.4);
+    }
 
-.footer {
-  position: fixed;
-  bottom: 10px;
-  width: 100%;
-  text-align: center;
-  color: #888;
-  font-size: 14px;
-}
+    .signal-card.red {
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+      border-color: rgba(255, 0, 0, 0.4);
+    }
 
+    .signal-icon {
+      font-size: 45px;
+      margin-bottom: 10px;
+    }
+
+    .signal-text {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 14px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <div class="signal-box" id="signalBox">📶 Waiting for candle...</div>
-  <div class="footer">🔁 Signal updates every 5s (Real DOM-based)</div>  <script>
-    // Injected Real-Like Signal from Quotex DOM
-    (function liveCandleReader() {
-      const signalBox = document.getElementById('signalBox');
 
-      setInterval(() => {
-        try {
-          const candles = document.querySelectorAll("div.tv-lightweight-charts > div > div > div > canvas");
-          if (!candles || candles.length === 0) {
-            signalBox.innerText = "❌ No candle data found!";
-            return;
-          }
+  <div id="signalBox" class="signal-card">
+    <div class="signal-icon">⏳</div>
+    <div class="signal-text">Waiting for signal...</div>
+  </div>
 
-          // Placeholder logic: random signal
-          const rand = Math.random();
-          const signal = rand > 0.5 ? '🟢 BUY (Green)' : '🔴 SELL (Red)';
-          const color = rand > 0.5 ? 'lime' : 'red';
+  <div class="footer">📊 Updates every 5s — Demo Mode</div>
 
-          signalBox.innerText = `📶 Signal: ${signal}`;
-          signalBox.style.color = color;
-          signalBox.style.boxShadow = `0 0 10px ${color}`;
-        } catch (err) {
-          signalBox.innerText = '⚠️ Error reading candles';
-        }
-      }, 5000);
-    })();
-  </script></body>
+  <script>
+    const signalBox = document.getElementById('signalBox');
+    const icon = signalBox.querySelector('.signal-icon');
+    const text = signalBox.querySelector('.signal-text');
+
+    function updateSignal() {
+      const isGreen = Math.random() > 0.5;
+
+      if (isGreen) {
+        signalBox.classList.remove('red');
+        signalBox.classList.add('green');
+        icon.innerText = "🟢";
+        text.innerText = "BUY Signal (Green Candle)";
+        signalBox.style.boxShadow = "0 0 25px rgba(0,255,0,0.4)";
+        signalBox.style.borderColor = "rgba(0,255,0,0.4)";
+      } else {
+        signalBox.classList.remove('green');
+        signalBox.classList.add('red');
+        icon.innerText = "🔴";
+        text.innerText = "SELL Signal (Red Candle)";
+        signalBox.style.boxShadow = "0 0 25px rgba(255,0,0,0.3)";
+        signalBox.style.borderColor = "rgba(255,0,0,0.4)";
+      }
+    }
+
+    // Initial and interval
+    updateSignal();
+    setInterval(updateSignal, 5000);
+  </script>
+
+</body>
 </html>
