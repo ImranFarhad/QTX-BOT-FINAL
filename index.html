@@ -1,0 +1,75 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QTX Signal Login</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(145deg, #0f0f0f, #1f1f1f);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+    .login-box {
+      background: #121212;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffcc33;
+      text-align: center;
+      width: 300px;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 15px;
+      background: #1e1e1e;
+      color: #00ffcc;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00e6b8;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>🔐 QTX Signal Access</h2>
+    <input type="password" id="pass" placeholder="Enter Password" />
+    <button onclick="login()">Enter</button>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    function login() {
+      const pass = document.getElementById('pass').value;
+      if (pass === "017222") {
+        window.location.href = "https://market-qx.trade/en/sign-in/modal/";
+      } else {
+        document.getElementById("error").innerText = "❌ Wrong Password";
+      }
+    }
+  </script>
+</body>
+</html>
