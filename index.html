@@ -60,60 +60,47 @@
     <button onclick="login()">Enter</button>
     <div class="error" id="error"></div>
   </div>
-<script>
-function check() {
-  const input = document.getElementById("pass").value;
-  if (input === "017222") {
-    window.location.href = "https://market-qx.trade/en/sign-in/modal/";
-  } else {
-    alert("❌ Incorrect password!");
-  }
-}
 
-// Inject Live Signal Box
+  <script>
+    function login() {
+      const pass = document.getElementById('pass').value;
+      if (pass === "017222") {
+        window.location.href = "https://market-qx.trade/en/sign-in/modal/";
+      } else {
+        document.getElementById("error").innerText = "❌ Wrong Password";
+      }
+    }
+    
 (function () {
-  const isQuotex = window.location.href.includes("market-qx.trade");
-  if (!isQuotex) return;
-
   const tryInject = setInterval(() => {
-    const app = document.querySelector("body");
-    if (app) {
-      injectSignalBox();
+    const candles = document.querySelectorAll('.chart-canvas-wrapper canvas');
+    if (candles.length) {
+      injectSignal();
       clearInterval(tryInject);
     }
   }, 1000);
 
-  function injectSignalBox() {
-    const box = document.createElement("div");
-    box.id = "signal-box";
-    box.style.position = "fixed";
-    box.style.top = "60px";
-    box.style.right = "15px";
-    box.style.background = "#111";
-    box.style.border = "2px solid #00ffcc";
-    box.style.padding = "12px";
-    box.style.color = "#fff";
-    box.style.fontWeight = "bold";
-    box.style.borderRadius = "10px";
-    box.style.zIndex = 999999;
-    box.style.fontSize = "14px";
-    box.innerHTML = "🔄 Loading signal...";
+  function injectSignal() {
+    const signalDiv = document.createElement("div");
+    signalDiv.style.position = "absolute";
+    signalDiv.style.top = "80px";
+    signalDiv.style.left = "10px";
+    signalDiv.style.color = "#0f0";
+    signalDiv.style.fontSize = "18px";
+    signalDiv.style.zIndex = "9999";
+    signalDiv.style.background = "#111";
+    signalDiv.style.padding = "10px";
+    signalDiv.style.border = "2px solid lime";
+    signalDiv.style.borderRadius = "10px";
+    signalDiv.innerHTML = "🔮 Predicting signal...";
 
-    document.body.appendChild(box);
+    document.body.appendChild(signalDiv);
 
     setInterval(() => {
       const now = new Date();
-      const signal = Math.random() > 0.5 ? "🟢 BUY (Up)" : "🔴 SELL (Down)";
-      const bg = signal.includes("BUY") ? "#003300" : "#330000";
-      const color = signal.includes("BUY") ? "#00ff00" : "#ff0000";
-
-      box.style.background = bg;
-      box.style.borderColor = color;
-      box.innerHTML = `
-        ⏱ ${now.toLocaleTimeString()}<br/>
-        Signal: <span style="color:${color};">${signal}</span><br/>
-        Confidence: ${(90 + Math.random() * 10).toFixed(1)}%
-      `;
+      const sec = now.getSeconds();
+      const predicted = Math.random() > 0.5 ? "🟢 GREEN" : "🔴 RED";
+      signalDiv.innerHTML = `⏱ ${now.toLocaleTimeString()}<br> Signal: <b>${predicted}</b>`;
     }, 5000);
   }
 })();
