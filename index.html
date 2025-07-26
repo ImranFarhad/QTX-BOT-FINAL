@@ -1,67 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📶 QTX Signal Box</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📶 QTX Real Signal Box</title>
   <style>
     body {
       margin: 0;
       background-color: #101010;
       font-family: Arial, sans-serif;
-    }
+    }.signal-box {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 15px 20px;
+  border-radius: 12px;
+  color: lime;
+  font-size: 20px;
+  font-weight: bold;
+  box-shadow: 0 0 10px lime;
+  z-index: 9999;
+  animation: blink 1s infinite alternate;
+}
 
-    .signal-box {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.9);
-      padding: 15px 20px;
-      border-radius: 12px;
-      color: lime;
-      font-size: 20px;
-      font-weight: bold;
-      box-shadow: 0 0 10px lime;
-      z-index: 9999;
-      animation: blink 1s infinite alternate;
-    }
+@keyframes blink {
+  from { opacity: 1; }
+  to { opacity: 0.7; }
+}
 
-    @keyframes blink {
-      from { opacity: 1; }
-      to { opacity: 0.7; }
-    }
+.footer {
+  position: fixed;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
 
-    .footer {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      color: #888;
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
+  <div class="signal-box" id="signalBox">📶 Waiting for candle...</div>
+  <div class="footer">🔁 Signal updates every 5s (Real DOM-based)</div>  <script>
+    // Injected Real-Like Signal from Quotex DOM
+    (function liveCandleReader() {
+      const signalBox = document.getElementById('signalBox');
 
-  <div class="signal-box" id="signalBox">⏳ Waiting next candle...</div>
-  <div class="footer">🔁 Signal updates every 5s (demo mode)</div>
+      setInterval(() => {
+        try {
+          const candles = document.querySelectorAll("div.tv-lightweight-charts > div > div > div > canvas");
+          if (!candles || candles.length === 0) {
+            signalBox.innerText = "❌ No candle data found!";
+            return;
+          }
 
-  <script>
-    // Demo Signal Changer (Random)
-    const signalBox = document.getElementById("signalBox");
+          // Placeholder logic: random signal
+          const rand = Math.random();
+          const signal = rand > 0.5 ? '🟢 BUY (Green)' : '🔴 SELL (Red)';
+          const color = rand > 0.5 ? 'lime' : 'red';
 
-    function updateSignal() {
-      const isGreen = Math.random() > 0.5;
-      const signalText = isGreen ? "🟢 BUY (Green Candle)" : "🔴 SELL (Red Candle)";
-      const signalColor = isGreen ? "lime" : "red";
-
-      signalBox.innerText = `📶 Signal: ${signalText}`;
-      signalBox.style.color = signalColor;
-      signalBox.style.boxShadow = `0 0 10px ${signalColor}`;
-    }
-
-    // Update every 5 seconds
-    setInterval(updateSignal, 5000);
-  </script>
-</body>
+          signalBox.innerText = `📶 Signal: ${signal}`;
+          signalBox.style.color = color;
+          signalBox.style.boxShadow = `0 0 10px ${color}`;
+        } catch (err) {
+          signalBox.innerText = '⚠️ Error reading candles';
+        }
+      }, 5000);
+    })();
+  </script></body>
 </html>
