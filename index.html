@@ -3,85 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QTX Signal Inject</title>
+  <title>QTX SIGNAL</title>
   <style>
     body {
+      margin: 0;
       background: #000;
       color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 100px;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    input[type="password"] {
-      padding: 12px;
-      width: 220px;
+    #loginBox {
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #0f0;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      width: 200px;
+      font-size: 16px;
       border: none;
       border-radius: 5px;
-      font-size: 18px;
+      margin-top: 10px;
     }
     button {
-      padding: 12px 24px;
-      font-size: 18px;
       margin-top: 10px;
+      padding: 10px 20px;
       background: #0f0;
       color: #000;
+      font-weight: bold;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-    #error {
-      color: red;
-      margin-top: 15px;
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h2>🔒 Enter Access Password</h2>
-  <input type="password" id="pass" placeholder="Enter password..." />
-  <br />
-  <button onclick="check()">Login</button>
-  <div id="error"></div>
+
+  <div id="loginBox">
+    <h2>🔒 Enter Access Password</h2>
+    <input type="password" id="pass" placeholder="Enter Password"/>
+    <br/>
+    <button onclick="checkPass()">Login</button>
+  </div>
+
+  <iframe id="qxFrame" src=""></iframe>
 
   <script>
-    function check() {
-      const password = document.getElementById("pass").value;
-      if (password === "017222") {
-        // Inject then Redirect
-        document.body.innerHTML = "<h3>✅ Loading Quotex Chart...</h3>";
-        setTimeout(() => {
-          location.href = "https://market-qx.trade/en/sign-in/modal/";
-        }, 1000);
+    function checkPass() {
+      const pass = document.getElementById("pass").value;
+      if (pass === "017222") {
+        document.getElementById("loginBox").style.display = "none";
+        const iframe = document.getElementById("qxFrame");
+        iframe.style.display = "block";
+        iframe.src = "https://market-qx.trade/en/sign-in/modal/";
+
+        // Inject overlay signal after loading
+        iframe.onload = () => {
+          const script = `
+            const observer = new MutationObserver(() => {
+              const canvas = document.querySelector('canvas');
+              if (canvas && !document.getElementById('signalOverlay')) {
+                const div = document.createElement('div');
+                div.id = 'signalOverlay';
+                div.style.position = 'absolute';
+                div.style.top = '20%';
+                div.style.right = '10px';
+                div.style.zIndex = '999999';
+                div.style.fontSize = '24px';
+                div.style.fontWeight = 'bold';
+                div.style.padding = '10px';
+                div.style.borderRadius = '10px';
+                div.style.background = 'rgba(0,0,0,0.6)';
+                div.style.color = '#0f0';
+                div.innerText = '🔍 Signal Detecting...';
+                document.body.appendChild(div);
+
+                setInterval(() => {
+                  const prediction = Math.random() > 0.5 ? '⬆️ UP (Green)' : '⬇️ DOWN (Red)';
+                  div.innerText = prediction;
+                  div.style.color = prediction.includes('UP') ? '#0f0' : '#f00';
+                }, 60000); // every minute
+              }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+          `;
+          const injectedScript = document.createElement('script');
+          injectedScript.textContent = script;
+          iframe.contentWindow.document.body.appendChild(injectedScript);
+        };
       } else {
-        document.getElementById("error").innerText = "❌ Wrong password!";
+        alert("❌ Wrong Password!");
       }
-    }
-
-    // If already on quotex chart page
-    if (location.href.includes("market-qx.trade")) {
-      const box = document.createElement("div");
-      box.style.position = "fixed";
-      box.style.top = "10px";
-      box.style.right = "10px";
-      box.style.padding = "15px";
-      box.style.background = "#111";
-      box.style.border = "2px solid #0f0";
-      box.style.color = "#0f0";
-      box.style.zIndex = "999999";
-      box.style.fontSize = "16px";
-      box.innerHTML = "📡 Live Signal: <b>Detecting...</b>";
-      document.body.appendChild(box);
-
-      function randomSignal() {
-        const isBuy = Math.random() > 0.5;
-        const confidence = (90 + Math.random() * 9).toFixed(2);
-        box.innerHTML =
-          `📡 Live Signal: <b style="color:${isBuy ? '#0f0' : '#f00'}">` +
-          (isBuy ? "BUY 🔼" : "SELL 🔽") +
-          `</b><br>📊 Confidence: ${confidence}%`;
-      }
-
-      setInterval(randomSignal, 5000); // Every 5 sec update
     }
   </script>
+
 </body>
 </html>
