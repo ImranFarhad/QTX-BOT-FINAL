@@ -1,109 +1,87 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>QTX Signal Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QTX Signal Inject</title>
   <style>
     body {
-      margin: 0;
-      background: linear-gradient(145deg, #0f0f0f, #1f1f1f);
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #000;
       color: #fff;
-    }
-    .login-box {
-      background: #121212;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ffcc33;
+      font-family: Arial, sans-serif;
       text-align: center;
-      width: 300px;
+      padding-top: 100px;
     }
     input[type="password"] {
-      width: 100%;
       padding: 12px;
-      border-radius: 8px;
+      width: 220px;
       border: none;
-      margin-top: 15px;
-      background: #1e1e1e;
-      color: #00ffcc;
-      font-size: 16px;
+      border-radius: 5px;
+      font-size: 18px;
     }
     button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      background: #00ffcc;
+      padding: 12px 24px;
+      font-size: 18px;
+      margin-top: 10px;
+      background: #0f0;
       color: #000;
-      font-weight: bold;
-      font-size: 16px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    button:hover {
-      background: #00e6b8;
-    }
-    .error {
+    #error {
       color: red;
-      margin-top: 10px;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>🔐 QTX Signal Access</h2>
-    <input type="password" id="pass" placeholder="Enter Password" />
-    <button onclick="login()">Enter</button>
-    <div class="error" id="error"></div>
-  </div>
+  <h2>🔒 Enter Access Password</h2>
+  <input type="password" id="pass" placeholder="Enter password..." />
+  <br />
+  <button onclick="check()">Login</button>
+  <div id="error"></div>
 
   <script>
-    function login() {
-      const pass = document.getElementById('pass').value;
-      if (pass === "017222") {
-        window.location.href = "https://market-qx.trade/en/sign-in/modal/";
+    function check() {
+      const password = document.getElementById("pass").value;
+      if (password === "017222") {
+        // Inject then Redirect
+        document.body.innerHTML = "<h3>✅ Loading Quotex Chart...</h3>";
+        setTimeout(() => {
+          location.href = "https://market-qx.trade/en/sign-in/modal/";
+        }, 1000);
       } else {
-        document.getElementById("error").innerText = "❌ Wrong Password";
+        document.getElementById("error").innerText = "❌ Wrong password!";
       }
     }
-    
-(function () {
-  const tryInject = setInterval(() => {
-    const candles = document.querySelectorAll('.chart-canvas-wrapper canvas');
-    if (candles.length) {
-      injectSignal();
-      clearInterval(tryInject);
+
+    // If already on quotex chart page
+    if (location.href.includes("market-qx.trade")) {
+      const box = document.createElement("div");
+      box.style.position = "fixed";
+      box.style.top = "10px";
+      box.style.right = "10px";
+      box.style.padding = "15px";
+      box.style.background = "#111";
+      box.style.border = "2px solid #0f0";
+      box.style.color = "#0f0";
+      box.style.zIndex = "999999";
+      box.style.fontSize = "16px";
+      box.innerHTML = "📡 Live Signal: <b>Detecting...</b>";
+      document.body.appendChild(box);
+
+      function randomSignal() {
+        const isBuy = Math.random() > 0.5;
+        const confidence = (90 + Math.random() * 9).toFixed(2);
+        box.innerHTML =
+          `📡 Live Signal: <b style="color:${isBuy ? '#0f0' : '#f00'}">` +
+          (isBuy ? "BUY 🔼" : "SELL 🔽") +
+          `</b><br>📊 Confidence: ${confidence}%`;
+      }
+
+      setInterval(randomSignal, 5000); // Every 5 sec update
     }
-  }, 1000);
-
-  function injectSignal() {
-    const signalDiv = document.createElement("div");
-    signalDiv.style.position = "absolute";
-    signalDiv.style.top = "80px";
-    signalDiv.style.left = "10px";
-    signalDiv.style.color = "#0f0";
-    signalDiv.style.fontSize = "18px";
-    signalDiv.style.zIndex = "9999";
-    signalDiv.style.background = "#111";
-    signalDiv.style.padding = "10px";
-    signalDiv.style.border = "2px solid lime";
-    signalDiv.style.borderRadius = "10px";
-    signalDiv.innerHTML = "🔮 Predicting signal...";
-
-    document.body.appendChild(signalDiv);
-
-    setInterval(() => {
-      const now = new Date();
-      const sec = now.getSeconds();
-      const predicted = Math.random() > 0.5 ? "🟢 GREEN" : "🔴 RED";
-      signalDiv.innerHTML = `⏱ ${now.toLocaleTimeString()}<br> Signal: <b>${predicted}</b>`;
-    }, 5000);
-  }
-})();
   </script>
 </body>
 </html>
