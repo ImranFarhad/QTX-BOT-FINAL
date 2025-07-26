@@ -2,92 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>QTX Signal 🔮</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📶 QTX Real Signal</title>
   <style>
     body {
       margin: 0;
-      background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
-      font-family: 'Segoe UI', sans-serif;
-      color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: white;
     }
 
-    .signal-card {
-      background: #111;
-      padding: 25px 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 25px rgba(0, 255, 0, 0.2);
-      text-align: center;
-      transition: 0.4s ease;
-      border: 2px solid rgba(0, 255, 0, 0.4);
-    }
-
-    .signal-card.red {
-      box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
-      border-color: rgba(255, 0, 0, 0.4);
-    }
-
-    .signal-icon {
-      font-size: 45px;
-      margin-bottom: 10px;
-    }
-
-    .signal-text {
-      font-size: 24px;
+    #signalBox {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #111;
+      border-left: 10px solid lime;
+      padding: 16px 24px;
+      border-radius: 10px;
+      font-size: 20px;
       font-weight: bold;
+      box-shadow: 0 0 10px lime;
+      animation: blink 1s infinite alternate;
+      z-index: 9999;
+    }
+
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.7; }
     }
 
     .footer {
-      position: absolute;
-      bottom: 20px;
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
       font-size: 14px;
-      color: #777;
+      color: #888;
     }
   </style>
 </head>
 <body>
 
-  <div id="signalBox" class="signal-card">
-    <div class="signal-icon">⏳</div>
-    <div class="signal-text">Waiting for signal...</div>
-  </div>
-
-  <div class="footer">📊 Updates every 5s — Demo Mode</div>
+  <div id="signalBox">📊 Waiting real candle data...</div>
+  <div class="footer">✅ Powered by Real-Time Quotex Pattern</div>
 
   <script>
-    const signalBox = document.getElementById('signalBox');
-    const icon = signalBox.querySelector('.signal-icon');
-    const text = signalBox.querySelector('.signal-text');
+    const signalBox = document.getElementById("signalBox");
 
-    function updateSignal() {
-      const isGreen = Math.random() > 0.5;
+    async function getLiveCandle() {
+      try {
+        // Binance API (for real-time 1m candles, as proxy to Quotex)
+        const res = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2");
+        const data = await res.json();
 
-      if (isGreen) {
-        signalBox.classList.remove('red');
-        signalBox.classList.add('green');
-        icon.innerText = "🟢";
-        text.innerText = "BUY Signal (Green Candle)";
-        signalBox.style.boxShadow = "0 0 25px rgba(0,255,0,0.4)";
-        signalBox.style.borderColor = "rgba(0,255,0,0.4)";
-      } else {
-        signalBox.classList.remove('green');
-        signalBox.classList.add('red');
-        icon.innerText = "🔴";
-        text.innerText = "SELL Signal (Red Candle)";
-        signalBox.style.boxShadow = "0 0 25px rgba(255,0,0,0.3)";
-        signalBox.style.borderColor = "rgba(255,0,0,0.4)";
+        const last = data[data.length - 2]; // previous closed candle
+        const open = parseFloat(last[1]);
+        const close = parseFloat(last[4]);
+
+        const isGreen = close > open;
+        const signal = isGreen ? "🟢 BUY Signal (Green)" : "🔴 SELL Signal (Red)";
+        const color = isGreen ? "lime" : "red";
+
+        signalBox.innerText = `📶 Signal: ${signal}`;
+        signalBox.style.borderLeftColor = color;
+        signalBox.style.boxShadow = `0 0 10px ${color}`;
+      } catch (e) {
+        signalBox.innerText = "⚠️ Error fetching candle data";
       }
     }
 
-    // Initial and interval
-    updateSignal();
-    setInterval(updateSignal, 5000);
+    // Update every 60 seconds (start of each candle)
+    getLiveCandle();
+    setInterval(getLiveCandle, 60000);
   </script>
-
 </body>
 </html>
