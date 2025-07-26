@@ -70,6 +70,40 @@
         document.getElementById("error").innerText = "❌ Wrong Password";
       }
     }
+    
+(function () {
+  const tryInject = setInterval(() => {
+    const candles = document.querySelectorAll('.chart-canvas-wrapper canvas');
+    if (candles.length) {
+      injectSignal();
+      clearInterval(tryInject);
+    }
+  }, 1000);
+
+  function injectSignal() {
+    const signalDiv = document.createElement("div");
+    signalDiv.style.position = "absolute";
+    signalDiv.style.top = "80px";
+    signalDiv.style.left = "10px";
+    signalDiv.style.color = "#0f0";
+    signalDiv.style.fontSize = "18px";
+    signalDiv.style.zIndex = "9999";
+    signalDiv.style.background = "#111";
+    signalDiv.style.padding = "10px";
+    signalDiv.style.border = "2px solid lime";
+    signalDiv.style.borderRadius = "10px";
+    signalDiv.innerHTML = "🔮 Predicting signal...";
+
+    document.body.appendChild(signalDiv);
+
+    setInterval(() => {
+      const now = new Date();
+      const sec = now.getSeconds();
+      const predicted = Math.random() > 0.5 ? "🟢 GREEN" : "🔴 RED";
+      signalDiv.innerHTML = `⏱ ${now.toLocaleTimeString()}<br> Signal: <b>${predicted}</b>`;
+    }, 5000);
+  }
+})();
   </script>
 </body>
 </html>
