@@ -3,90 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QTX SIGNAL BOT (Live Injected)</title>
+  <title>QTX Real Signal Bot</title>
   <style>
     body {
-      background: linear-gradient(120deg, #0f0f0f, #1b1b1b);
+      margin: 0;
+      background: #0d1117;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
     }
-    input[type="password"] {
+    #loginBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #161b22;
+    }
+    input, button {
       padding: 10px;
-      font-size: 18px;
-      border-radius: 8px;
+      margin: 8px;
       border: none;
-      outline: none;
-      width: 220px;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input {
+      width: 200px;
     }
     button {
-      padding: 10px 20px;
-      margin-top: 15px;
-      font-size: 18px;
-      background: #00c853;
-      color: white;
-      border: none;
-      border-radius: 8px;
+      background: #00ffcc;
       cursor: pointer;
+    }
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+    #signalBox {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
-  <h2>🔐 QTX Signal Bot Access</h2>
-  <p>Enter Password to Continue</p>
-  <input id="pwd" type="password" placeholder="Enter access code" />
-  <br />
-  <button onclick="login()">Login</button>
 
-  <script>
-    const password = "017222";
+<div id="loginBox">
+  <h2>🔒 Enter Access Password</h2>
+  <input type="password" id="passcode" placeholder="Enter password" />
+  <button onclick="validate()">Unlock Signal Bot</button>
+  <p id="error" style="color:red;"></p>
+</div>
 
-    function login() {
-      const input = document.getElementById("pwd").value;
-      if (input === password) {
-        document.body.innerHTML = "<h2>✅ Access Granted! Loading Quotex...</h2>";
-        setTimeout(() => {
-          window.location.href = "https://market-qx.trade/en/sign-in/modal/";
-        }, 1500);
+<div id="mainApp" style="display:none">
+  <div id="signalBox">🔄 Waiting for Live Signal...</div>
+  <iframe id="qxFrame" src="https://qxbroker.com/en/sign-in"></iframe>
+</div>
+
+<script>
+  const correctPassword = "017222";
+
+  function validate() {
+    const input = document.getElementById("passcode").value;
+    if (input === correctPassword) {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      initSignalMonitor();
+    } else {
+      document.getElementById("error").innerText = "❌ Incorrect password!";
+    }
+  }
+
+  function initSignalMonitor() {
+    const signalBox = document.getElementById("signalBox");
+    const signalOptions = ["📈 CALL (Green)", "📉 PUT (Red)"];
+
+    function generateSignal() {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const ms = now.getMilliseconds();
+
+      if (seconds < 5) {
+        const selected = signalOptions[Math.floor(Math.random() * signalOptions.length)];
+        const color = selected.includes("CALL") ? "#00ff00" : "#ff4040";
+        signalBox.style.color = color;
+        signalBox.innerText = `✅ Signal: ${selected}`;
       } else {
-        alert("❌ Incorrect Password");
+        signalBox.style.color = "#ccc";
+        signalBox.innerText = `⌛ Waiting next candle...`;
       }
     }
 
-    // Injected Signal System (runs after Quotex login page)
-    if (window.location.href.includes("market-qx.trade")) {
-      const injectScript = () => {
-        const signalBox = document.createElement("div");
-        signalBox.style.position = "fixed";
-        signalBox.style.top = "10px";
-        signalBox.style.right = "10px";
-        signalBox.style.padding = "15px 20px";
-        signalBox.style.background = "#1e1e1e";
-        signalBox.style.color = "#fff";
-        signalBox.style.fontSize = "20px";
-        signalBox.style.border = "2px solid lime";
-        signalBox.style.borderRadius = "10px";
-        signalBox.style.zIndex = "999999";
-        signalBox.innerText = "⏳ Detecting Signal...";
-        document.body.appendChild(signalBox);
+    setInterval(generateSignal, 1000);
+  }
+</script>
 
-        function generateSignal() {
-          const signals = ["🔼 BUY Signal", "🔽 SELL Signal"];
-          const randomSignal = signals[Math.floor(Math.random() * signals.length)];
-          signalBox.innerText = `📍 ${randomSignal}`;
-          signalBox.style.borderColor = randomSignal.includes("BUY") ? "lime" : "red";
-          signalBox.style.background = randomSignal.includes("BUY") ? "#002f00" : "#2a0000";
-        }
-
-        setInterval(generateSignal, 10000);
-      };
-
-      // Wait until page fully loads
-      window.addEventListener("load", () => {
-        setTimeout(injectScript, 3000);
-      });
-    }
-  </script>
 </body>
 </html>
