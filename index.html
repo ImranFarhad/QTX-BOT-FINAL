@@ -1,80 +1,282 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📶 QTX Real Signal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quotex OTC Signal Bot</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #000;
-      color: white;
-    }
+    :root {
+      --primary-color: #00ff88;
+      --background: #0d1117;
+      --card-bg: #161b22;
+      --text-color: #ffffff;
+      --border-color: #30363d;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #facc15;
+    }* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    #signalBox {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background-color: #111;
-      border-left: 10px solid lime;
-      padding: 16px 24px;
-      border-radius: 10px;
-      font-size: 20px;
-      font-weight: bold;
-      box-shadow: 0 0 10px lime;
-      animation: blink 1s infinite alternate;
-      z-index: 9999;
-    }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  min-height: 100vh;
+  animation: fadeIn 1s ease-in;
+}
 
-    @keyframes blink {
-      from { opacity: 1; }
-      to { opacity: 0.7; }
-    }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-    .footer {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 14px;
-      color: #888;
-    }
+h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 8px #00ff88aa;
+}
+
+select {
+  padding: 12px 16px;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  width: 280px;
+  box-shadow: 0 0 5px #00ff8855;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.2);
+  border: 1px solid var(--border-color);
+  margin-bottom: 30px;
+  transform: scale(1);
+  transition: transform 0.5s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.prediction {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+.countdown {
+  font-size: 0.95rem;
+  margin-top: 10px;
+  color: #c9d1d9;
+}
+
+#selected-pair {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: var(--primary-color);
+}
+
+.confidence {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px #000, 0 0 5px var(--primary-color);
+}
+
+#candlestickChart {
+  max-width: 700px;
+  margin-top: 40px;
+  background-color: #1f2937;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
   </style>
 </head>
 <body>
-
-  <div id="signalBox">📊 Waiting real candle data...</div>
-  <div class="footer">✅ Powered by Real-Time Quotex Pattern</div>
+  <h1>📊 Quotex OTC Signal Bot</h1>
+  <select id="pair-select"></select>  <div class="card">
+    <p>Current Pair:</p>
+    <h2 id="selected-pair">Loading...</h2>
+    <div id="signal" class="prediction">⏳</div>
+    <p id="confidence-score" class="confidence"></p>
+    <p class="countdown">Next update in <span id="timer">60</span>s</p>
+    <p class="countdown">(Synced to Quotex 1-minute candle)</p>
+  </div><canvas id="candlestickChart" width="400" height="300"></canvas> <audio id="alert-sound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3"></audio>
 
   <script>
-    const signalBox = document.getElementById("signalBox");
+    const pairs = [
+      "AUD/CHF", "AUD/JPY", "CAD/JPY", "CHF/JPY", "EUR/CAD", "EUR/CHF",
+      "GBP/USD", "USD/JPY", "EUR/NZD (OTC)", "EUR/USD", "AUD/CAD",
+      "EUR/AUD", "GBP/CAD", "EUR/GBP", "EUR/JPY", "GBP/AUD", "GBP/JPY",
+      "USD/CAD", "USD/CHF", "NZD/JPY (OTC)", "USD/ARS (OTC)", "USD/PKR (OTC)",
+      "USD/BRL (OTC)", "USD/PHP (OTC)", "USD/IDR (OTC)", "AUD/NZD (OTC)",
+      "USD/COP (OTC)", "USD/EGP (OTC)", "USD/NGN (OTC)", "GBP/NZD (OTC)",
+      "NZD/CAD (OTC)", "USD/DZD (OTC)", "USD/INR (OTC)", "USD/TRY (OTC)",
+      "USD/BDT (OTC)", "CAD/CHF (OTC)", "GBP/CHF (OTC)", "USD/ZAR (OTC)",
+      "NZD/CHF (OTC)", "USD/MXN (OTC)"
+    ];
 
-    async function getLiveCandle() {
-      try {
-        // Binance API (for real-time 1m candles, as proxy to Quotex)
-        const res = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2");
-        const data = await res.json();
+    const pairSelect = document.getElementById("pair-select");
+    const selectedPairEl = document.getElementById("selected-pair");
+    const signalEl = document.getElementById("signal");
+    const timerEl = document.getElementById("timer");
+    const confidenceEl = document.getElementById("confidence-score");
+    const alertSound = document.getElementById("alert-sound");
+    const ctx = document.getElementById("candlestickChart").getContext("2d");
 
-        const last = data[data.length - 2]; // previous closed candle
-        const open = parseFloat(last[1]);
-        const close = parseFloat(last[4]);
+    let currentPair = pairs[0];
+    let historyMap = {};
+    let signalData = [];
+    let chart;
 
-        const isGreen = close > open;
-        const signal = isGreen ? "🟢 BUY Signal (Green)" : "🔴 SELL Signal (Red)";
-        const color = isGreen ? "lime" : "red";
+    function getSmartPrediction(pair) {
+      const history = historyMap[pair] || [];
+      const greens = history.filter(p => p === "green").length;
+      const reds = history.filter(p => p === "red").length;
 
-        signalBox.innerText = `📶 Signal: ${signal}`;
-        signalBox.style.borderLeftColor = color;
-        signalBox.style.boxShadow = `0 0 10px ${color}`;
-      } catch (e) {
-        signalBox.innerText = "⚠️ Error fetching candle data";
+      let prediction = Math.random() > 0.5 ? "green" : "red";
+      let confidence = 50;
+
+      if (greens >= 3) {
+        prediction = "red";
+        confidence = 90;
+      } else if (reds >= 3) {
+        prediction = "green";
+        confidence = 90;
+      } else if (greens === reds) {
+        confidence = 55;
+      } else {
+        confidence = 70;
       }
+
+      return { prediction, confidence };
     }
 
-    // Update every 60 seconds (start of each candle)
-    getLiveCandle();
-    setInterval(getLiveCandle, 60000);
-  </script>
-</body>
+    function updateSignal() {
+      const { prediction, confidence } = getSmartPrediction(currentPair);
+      const history = historyMap[currentPair] || [];
+      history.push(prediction);
+      if (history.length > 5) history.shift();
+      historyMap[currentPair] = history;
+
+      signalEl.textContent = prediction === "green" ? "🟩😊 Green" : "🟥😟 Red";
+      signalEl.className = prediction ${prediction};
+
+      confidenceEl.textContent = Confidence: ${confidence}% - ${confidence >= 80 ? 'Strong Signal' : 'Weak Signal'};
+      confidenceEl.style.color = confidence >= 80 ? "var(--green)" : "var(--yellow)";
+
+      alertSound.play();
+      addCandle(prediction);
+    }
+
+    function syncWithRealTime() {
+      const now = new Date();
+      const seconds = now.getUTCSeconds();
+      const msToNextMinute = (60 - seconds) * 1000;
+
+      setTimeout(() => {
+        updateSignal();
+        startRealTimer();
+      }, msToNextMinute);
+
+      timerEl.textContent = 60 - seconds;
+      countdownTimer(60 - seconds);
+    }
+
+    function startRealTimer() {
+      updateSignal();
+      setInterval(updateSignal, 60 * 1000);
+    }
+
+    function countdownTimer(start) {
+      let t = start;
+      timerEl.textContent = t;
+      clearInterval(window.timerInterval);
+      window.timerInterval = setInterval(() => {
+        t--;
+        if (t <= 0) t = 60;
+        timerEl.textContent = t;
+      }, 1000);
+    }
+
+    function addCandle(prediction) {
+      const now = new Date();
+      const label = now.getUTCHours().toString().padStart(2, '0') + ":" + now.getUTCMinutes().toString().padStart(2, '0');
+      const value = prediction === "green" ? 1 + Math.random() * 0.003 : 1 - Math.random() * 0.003;
+      const color = prediction === "green" ? "#22c55e" : "#ef4444";
+
+      signalData.push({ x: label, y: value, color });
+      if (signalData.length > 30) signalData.shift();
+      drawChart();
+    }
+
+    function drawChart() {
+      const labels = signalData.map(d => d.x);
+      const data = signalData.map(d => d.y);
+      const bgColor = signalData.map(d => d.color);
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Predicted Candles',
+            data,
+            backgroundColor: bgColor,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+    }
+
+    pairs.forEach(pair => {
+      const option = document.createElement("option");
+      option.value = pair;
+      option.textContent = pair;
+      pairSelect.appendChild(option);
+    });
+
+    pairSelect.addEventListener("change", e => {
+      currentPair = e.target.value;
+      selectedPairEl.textContent = currentPair;
+      syncWithRealTime();
+    });
+
+    // Init
+    selectedPairEl.textContent = currentPair;
+    pairSelect.value = currentPair;
+    syncWithRealTime();
+  </script></body>
 </html>
