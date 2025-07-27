@@ -1,0 +1,130 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QTX Signal Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    input[type="password"] {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #error-message {
+      margin-top: 10px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔒 QTX Signal Bot</h2>
+  <form id="login-form">
+    <input type="password" id="password" placeholder="পাসওয়ার্ড লিখুন..." required />
+    <button type="submit">লগইন</button>
+    <div id="error-message"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById("login-form");
+    const passwordInput = document.getElementById("password");
+    const errorMessage = document.getElementById("error-message");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const password = passwordInput.value;
+      if (password === "017222") {
+        window.location.href = "https://market-qx.trade/en/sign-in/modal/";
+      } else {
+        errorMessage.textContent = "❌ ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।";
+      }
+    });
+  </script>
+</body>
+</html><style>body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  color: white;
+  text-align: center;
+}
+
+.container {
+  padding-top: 100px;
+}
+
+input[type="password"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  width: 200px;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 25px;
+  font-size: 16px;
+  background-color: #00b894;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#error-message {
+  color: red;
+  margin-top: 10px;
+}</style><script>document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("login-form");
+  const passwordInput = document.getElementById("password");
+  const errorMessage = document.getElementById("error-message");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const password = passwordInput.value;
+
+    if (password === "017222") {
+      window.location.href = "https://market-qx.trade/en/sign-in/modal/";
+    } else {
+      errorMessage.textContent = "❌ ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।";
+    }
+  });
+});</script>
